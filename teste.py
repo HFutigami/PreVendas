@@ -16,6 +16,7 @@ from office365.sharepoint.files.file import File
 from office365.sharepoint.client_context import ClientContext
 from office365.runtime.auth.authentication_context import AuthenticationContext
 import io
+import pathlib
 import pyarrow as pa
 
 sharepoint_base_url = 'https://gertecsao.sharepoint.com/sites/PowerBi-Estoque/'
@@ -219,6 +220,7 @@ def main(page: ft.Page):
     page.window_width = 500
     page.window_height = 300
     page.window_resizable = False
+    lista_caixas = []
 
     ### Configurações e login do ChromeDriver no Gerfloor
     def chrome_drive_login():
@@ -233,11 +235,6 @@ def main(page: ft.Page):
     ### Telas de mensagens
     def caixa_error(caixa):
         return ft.AlertDialog(title=ft.Text(f'Caixa {caixa} inválida!', size=20), bgcolor='RED')
-    
-    def seriais_error(caixa):
-        return ft.AlertDialog(title=ft.Text(f'Não foram encontrados todos os dados para os seriais da caixa {caixa}!', size=20), bgcolor='RED')
-    
-    caixa_pend = ft.AlertDialog(title=ft.Text('Ainda existem caixas sendo processadas!', size=20), bgcolor='RED')
 
 
     ### Funções
@@ -248,10 +245,14 @@ def main(page: ft.Page):
         """
         if e.data == 'close':
             if len(caixa_list.controls) != 0:
-                page.dialog = caixa_pend
-                caixa_pend.open = True
-                page.update()
+                lista_caixas.clear()
+                for i in range(len(caixa_list.controls)):
+                    lista_caixas.append([str(caixa_list.controls[i]).split("'")[-2]])
+                caixas_pendentes = pd.DataFrame(columns=['Caixa'], data=lista_caixas)
+                caixas_pendentes.to_csv(str(pathlib.Path().resolve()) + f'\CaixasPendentes.csv', index=False)
             else:
+                caixas_pendentes = pd.DataFrame(columns=['Caixa'])
+                caixas_pendentes.to_csv(str(pathlib.Path().resolve()) + f'\CaixasPendentes.csv', index=False)
                 page.window_destroy()
         
 
@@ -259,7 +260,7 @@ def main(page: ft.Page):
         """
         Processa cada caixa bipada uma a uma.
         """
-        while True:
+        while len(lista_caixas) == 0:
             if len(caixa_list.controls) != 0:
                 try:
                     navegador.get('https://psg.gertec.com.br')
@@ -278,14 +279,10 @@ def main(page: ft.Page):
                             mov_estoque_expedicao(navegador, caixa_info)
                             att = atualizar_saldo(seriais_info, status_info, cliente_info, caixa_info)
                             if att is False:
-                                ns_error = seriais_error(caixa_info)
-                                page.dialog = ns_error
-                                ns_error.open = True
-                                page.update()
-                                resultado_list.controls.insert(0, ft.Text(str(caixa_list.controls[0]).split("'")[-2] + ' - SEM DADOS NA BASE'))
-                            else: resultado_list.controls.insert(0, ft.Text(str(caixa_list.controls[0]).split("'")[-2] + ' - MOVIMENTADA COM SUCESSO'))
-                        else: resultado_list.controls.insert(0, ft.Text(str(caixa_list.controls[0]).split("'")[-2] + ' - PACKING NÃO ENCONTRADO'))
-                    else: resultado_list.controls.insert(0, ft.Text(str(caixa_list.controls[0]).split("'")[-2] + ' - JÁ POSSUI REGISTRO'))
+                                resultado_list.controls.insert(0, ft.Text(str(caixa_list.controls[0]).split("'")[-2] + ' - SEM DADOS NA BASE', bgcolor=ft.colors.ORANGE_100))
+                            else: resultado_list.controls.insert(0, ft.Text(str(caixa_list.controls[0]).split("'")[-2] + ' - MOVIMENTADA COM SUCESSO', color=ft.colors.WHITE, bgcolor=ft.colors.GREEN_500))
+                        else: resultado_list.controls.insert(0, ft.Text(str(caixa_list.controls[0]).split("'")[-2] + ' - PACKING NÃO ENCONTRADO', color=ft.colors.WHITE, bgcolor=ft.colors.RED_500))
+                    else: resultado_list.controls.insert(0, ft.Text(str(caixa_list.controls[0]).split("'")[-2] + ' - JÁ POSSUI REGISTRO', bgcolor=ft.colors.LIGHT_GREEN_100))
                     caixa_list.controls.remove(caixa_list.controls[0])
                     page.update()
 
@@ -322,6 +319,11 @@ def main(page: ft.Page):
     col2 = ft.Column(col=6, controls=[resultado_list])
     lin = ft.ResponsiveRow([col1, col2])
     page.add(nr_caixa, lin)
+
+    cxs_pend = pd.read_csv(str(pathlib.Path().resolve()) + f'\CaixasPendentes.csv')
+    for i in cxs_pend['Caixa']:
+        caixa_list.controls.append(ft.Text(str(i)))
+        page.update()
 
     # Threading para processar as caixas em segundo plano
     thread = threading.Thread(target=alterar_lista)
