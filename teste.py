@@ -250,6 +250,7 @@ def main(page: ft.Page):
                     lista_caixas.append([str(caixa_list.controls[i]).split("'")[-2]])
                 caixas_pendentes = pd.DataFrame(columns=['Caixa'], data=lista_caixas)
                 caixas_pendentes.to_csv(str(pathlib.Path().resolve()) + f'\CaixasPendentes.csv', index=False)
+                page.window_destroy()
             else:
                 caixas_pendentes = pd.DataFrame(columns=['Caixa'])
                 caixas_pendentes.to_csv(str(pathlib.Path().resolve()) + f'\CaixasPendentes.csv', index=False)
