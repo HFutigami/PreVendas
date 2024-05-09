@@ -280,10 +280,10 @@ def main(page: ft.Page):
                             mov_estoque_expedicao(navegador, caixa_info)
                             att = atualizar_saldo(seriais_info, status_info, cliente_info, caixa_info)
                             if att is False:
-                                resultado_list.controls.insert(0, ft.Text(str(caixa_list.controls[0]).split("'")[-2] + ' - SEM DADOS NA BASE', bgcolor=ft.colors.ORANGE_100))
-                            else: resultado_list.controls.insert(0, ft.Text(str(caixa_list.controls[0]).split("'")[-2] + ' - MOVIMENTADA COM SUCESSO', color=ft.colors.WHITE, bgcolor=ft.colors.GREEN_500))
-                        else: resultado_list.controls.insert(0, ft.Text(str(caixa_list.controls[0]).split("'")[-2] + ' - PACKING NÃO ENCONTRADO', color=ft.colors.WHITE, bgcolor=ft.colors.RED_500))
-                    else: resultado_list.controls.insert(0, ft.Text(str(caixa_list.controls[0]).split("'")[-2] + ' - JÁ POSSUI REGISTRO', bgcolor=ft.colors.LIGHT_GREEN_100))
+                                resultado_list.controls.insert(0, ft.Text(str(caixa_list.controls[0]).split("'")[-2] + ' - SEM DADOS NA BASE', color=ft.colors.GREY_700, weight=ft.FontWeight.BOLD))
+                            else: resultado_list.controls.insert(0, ft.Text(str(caixa_list.controls[0]).split("'")[-2] + ' - MOVIMENTADA COM SUCESSO', color=ft.colors.GREEN_700, weight=ft.FontWeight.BOLD))
+                        else: resultado_list.controls.insert(0, ft.Text(str(caixa_list.controls[0]).split("'")[-2] + ' - PACKING NÃO ENCONTRADO', color=ft.colors.RED_700, weight=ft.FontWeight.BOLD))
+                    else: resultado_list.controls.insert(0, ft.Text(str(caixa_list.controls[0]).split("'")[-2] + ' - JÁ POSSUI REGISTRO', color=ft.colors.LIGHT_GREEN_700, weight=ft.FontWeight.BOLD))
                     caixa_list.controls.remove(caixa_list.controls[0])
                     page.update()
 
