@@ -451,7 +451,7 @@ elif st.session_state['senha'] == st.secrets.visual_pass or st.session_state['se
         st.session_state['saldo_estoque_detalhado'] = saldo_estoque_detalhado
 
     if 'saldo_estoque_detalhado' in st.session_state and saldo_estoque.selection.rows:
-        tabs_se.write'
+        tabs_se.write('Saldo em estoque detalhado.')
         tabs_se.data_editor(st.session_state['saldo_estoque_detalhado'][['NS',
                                                           'PN',
                                                           'DESCRICAO',
