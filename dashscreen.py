@@ -6,14 +6,6 @@ from office365.runtime.auth.authentication_context import AuthenticationContext
 import io
 from time import sleep
 from datetime import datetime, timedelta
-from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.options import Options
 
 if 'lpn' not in st.session_state:
     lpn_sharepoint_url = '/sites/Expedio/Documentos%20Compartilhados/General/Bases/LPN.xlsx' #xlsx
